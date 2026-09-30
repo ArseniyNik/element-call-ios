@@ -213,7 +213,10 @@ actor WidgetMatrixBridge: MatrixRTCRoomBridgeProtocol {
                 wireMessages[userID, default: [:]][deviceID] = content
             }
         }
-        return await request(action: "send_to_device", data: ["type": eventType, "messages": wireMessages]).map { response in
+        // Lider: without `encrypted` the SDK widget driver sends the keys in cleartext, and every
+        // receiver (this core and Element Call web alike, per MSC4143) discards cleartext keys, so no
+        // peer could decrypt our media. Element Call web sets the same flag.
+        return await request(action: "send_to_device", data: ["type": eventType, "encrypted": true, "messages": wireMessages]).map { response in
             response["failures"] as? [String: [String]] ?? [:]
         }
     }
