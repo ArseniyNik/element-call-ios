@@ -152,10 +152,11 @@ final nonisolated class CameraCapturer: NSObject, AVCaptureVideoDataOutputSample
         }
         session.addInput(input)
         session.addOutput(output)
-        // Deliver sensor-native frames; the rotation travels with the frame instead.
-        if let connection = output.connection(with: .video), connection.isVideoRotationAngleSupported(0) {
-            connection.videoRotationAngle = 0
-        }
+        // Lider: keep the connection's default rotation angle. It is the legacy landscape orientation on every
+        // iPhone (the one libwebrtc's RTCCameraVideoCapturer and the rotation table above assume), which is 0° on
+        // landscape-native sensors but 270° on the portrait-native Center Stage front camera of the iPhone 17/Air.
+        // Forcing 0° there produced 480x640 frames: the self view came out sideways and the 640x480 encoder sent
+        // nothing usable to the other side.
         session.commitConfiguration()
         
         let previous = state.withLock { state -> AVCaptureSession? in
