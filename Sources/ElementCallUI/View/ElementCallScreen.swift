@@ -34,6 +34,30 @@ public struct ElementCallScreen: View {
     }
 }
 
+/// Media tiles without navigation or controls, for hosts that supply their own call screen.
+public struct ElementCallMediaStage: View {
+    private let viewModel: ElementCallScreenViewModel
+    
+    public init(viewModel: ElementCallScreenViewModel) {
+        self.viewModel = viewModel
+    }
+    
+    public var body: some View {
+        let context = viewModel.context
+        let state = context.viewState
+        ElementCallStage(tiles: state.tiles,
+                         spotlightMemberID: state.spotlightMemberID,
+                         layout: state.layout,
+                         memberCount: state.memberCount,
+                         pictureInPictureSourceView: viewModel.pictureInPictureSourceView,
+                         callProvider: { viewModel.call },
+                         controlsClearance: 0,
+                         onAction: { context.send(viewAction: $0) })
+            .environment(\.elementCallStyle, context.style)
+            .reportInterfaceOrientation { viewModel.call }
+    }
+}
+
 /// Keeps the capturer's idea of which way up the phone is in step with the interface.
 ///
 /// The camera tags what it sends with the interface orientation so the far end can turn it back the
