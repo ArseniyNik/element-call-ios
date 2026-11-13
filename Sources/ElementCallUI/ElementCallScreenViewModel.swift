@@ -123,13 +123,15 @@ public final class ElementCallScreenViewModel {
     }
     
     private let controller: ElementCallController
+    private let onHangUp: (() -> Void)?
     private var observationTask: Task<Void, Never>?
     private var cancellables = Set<AnyCancellable>()
     private var profiles: [String: ElementCallMemberProfile] = [:]
     private var hasRequestedDismissal = false
     
-    public init(controller: ElementCallController) {
+    public init(controller: ElementCallController, onHangUp: (() -> Void)? = nil) {
         self.controller = controller
+        self.onHangUp = onHangUp
         let room = controller.room
         profiles = room?.memberProfiles ?? [:]
         context = ElementCallScreenContext(viewState: .init(roomName: room?.displayName ?? "",
@@ -187,6 +189,7 @@ public final class ElementCallScreenViewModel {
         case .minimize:
             controller.requestMinimize()
         case .hangUp:
+            onHangUp?()
             controller.hangUp()
         case .dismiss:
             controller.reset()

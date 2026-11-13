@@ -165,7 +165,8 @@ public final class ElementCallController {
                     audioSessionDidDeactivate()
                 case .microphoneMuteChanged(let isMuted):
                     applySystemMute(isMuted)
-                case .endCallRequested:
+                case .endCallRequested(let roomID):
+                    guard room?.roomID == roomID else { return }
                     hangUp()
                 }
             }
